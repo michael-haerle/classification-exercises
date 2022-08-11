@@ -35,11 +35,21 @@ def split_data_titanic(titanic_df):
     return train_titanic, validate_titanic, test_titanic
 
 def prep_telco(telco_df):
-    cols_to_drop = ['internet_service_type_id', 'contract_type_id', 'payment_type_id']
-    telco_df = telco_df.drop(columns=cols_to_drop)
     telco_df = telco_df.T.drop_duplicates().T
-    dummy_telco_df = pd.get_dummies(telco_df[['gender','contract_type','internet_service_type']], dummy_na=False, drop_first=[True, True, True])
+    dummy_telco_df = pd.get_dummies(telco_df[['gender','contract_type','internet_service_type']], dummy_na=False, drop_first=[True, False, False])
     telco_df = pd.concat([telco_df, dummy_telco_df], axis=1)
+    telco_df.senior_citizen = telco_df.senior_citizen.astype('int')
+    telco_df.tenure = telco_df.tenure.astype('int')
+    telco_df.monthly_charges = telco_df.monthly_charges.astype('float')
+    telco_df.partner = telco_df.partner.map(dict(Yes=1, No=0))
+    telco_df.dependents = telco_df.dependents.map(dict(Yes=1, No=0))
+    telco_df.phone_service = telco_df.phone_service.map(dict(Yes=1, No=0))
+    telco_df.paperless_billing = telco_df.paperless_billing.map(dict(Yes=1, No=0))
+    telco_df.churn = telco_df.churn.map(dict(Yes=1, No=0))
+    cols_to_drop = ['internet_service_type_id', 'contract_type_id', 'payment_type_id', 'gender']
+    telco_df = telco_df.drop(columns=cols_to_drop)
+    telco_df.total_charges = telco_df.total_charges.str.replace(' ', '0')
+    telco_df.total_charges = telco_df.total_charges.astype('float')
     return telco_df
 
 def split_data_telco(telco_df):
